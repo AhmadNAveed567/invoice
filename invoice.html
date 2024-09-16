@@ -1,0 +1,442 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
+            color: #495057;
+            margin: 0;
+            padding: 0;
+        }
+        .invoice-container {
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            margin: 0;
+            color: #007bff;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            overflow-x: auto;
+            display: block;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        th {
+            background-color: #f1f3f5;
+        }
+        .invoice-summary {
+            margin-top: 20px;
+            text-align: right;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button.add-item {
+            background-color: #28a745;
+        }
+        button.add-item:hover {
+            background-color: #218838;
+        }
+        button.generate-pdf {
+            background-color: #007bff;
+        }
+        button.generate-pdf:hover {
+            background-color: #0056b3;
+        }
+        button.delete-item {
+            background-color: #dc3545;
+            color: white;
+            border-radius: 4px;
+            padding: 6px 12px;
+        }
+        button.delete-item:hover {
+            background-color: #c82333;
+        }
+        .item-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 5px;
+        }
+        .item-actions button {
+            flex: 1;
+        }
+        .login-container {
+            max-width: 300px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .login-container h1 {
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+        .login-container .form-group {
+            margin-bottom: 15px;
+        }
+        .login-container .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .login-container .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .login-container button:hover {
+            background-color: #0056b3;
+        }
+        @media (max-width: 768px) {
+            .form-group input {
+                font-size: 14px;
+                padding: 8px;
+            }
+            table {
+                font-size: 14px;
+            }
+            button {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            .invoice-container {
+                padding: 15px;
+            }
+            h1, h2 {
+                font-size: 24px;
+            }
+            .form-group input {
+                font-size: 12px;
+                padding: 6px;
+            }
+            table {
+                font-size: 12px;
+            }
+            button {
+                font-size: 12px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+   <!-- Login Form -->
+<div id="login" class="login-container">
+    <h1>Login</h1>
+    <div class="form-group">
+        <label for="username">Username:</label>
+        <input type="text" id="username" placeholder="Enter username" required>
+    </div>
+    <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="Enter password" required>
+    </div>
+    <button onclick="login()">Login</button>
+</div>
+
+
+    <!-- Invoice Page -->
+    <div id="invoicePage" class="invoice-container" style="display: none;">
+        <h1>Invoice Generator</h1>
+
+        <!-- Static Rasool Distribution Header -->
+        <h2>Rasool Distribution</h2>
+        <p>21B Grange Road, Houston Industrial Estate, Livingston</p>
+        <p>07425771363 | sales@rosuldistribution.com</p>
+        <p>Business Number VAT# 433 1520 37</p>
+
+        <!-- Invoice Details Input Form -->
+        <div class="form-group">
+            <label for="invoiceNumber">Invoice Number:</label>
+            <input type="text" id="invoiceNumber" value="INV1987" placeholder="Enter Invoice Number" required>
+        </div>
+        <div class="form-group">
+            <label for="client">Bill To (Client Name):</label>
+            <input type="text" id="client" placeholder="Enter client name" required>
+        </div>
+        <div class="form-group">
+            <label for="address">Client Address:</label>
+            <input type="text" id="address" placeholder="Enter client address" required>
+        </div>
+        <div class="form-group">
+            <label for="date">Invoice Date:</label>
+            <input type="date" id="date" required>
+        </div>
+
+        <!-- Items Table -->
+        <table id="invoiceTable">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Rate (£)</th>
+                    <th>Quantity</th>
+                    <th>Total (£)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="itemsBody">
+                <tr>
+                    <td><input type="text" placeholder="Item 1 Description" class="item-desc"></td>
+                    <td><input type="number" placeholder="0.00" class="item-rate"></td>
+                    <td><input type="number" placeholder="1" class="item-qty"></td>
+                    <td class="item-total">0.00</td>
+                    <td class="item-actions">
+                        <button class="delete-item" onclick="deleteItem(this)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Button to Add More Items -->
+        <button class="add-item" onclick="addItem()">Add Item</button>
+
+        <!-- Invoice Summary -->
+        <div class="invoice-summary">
+            <p>Subtotal: £<span id="subtotal">0.00</span></p>
+            <p>Vat (20%): £<span id="tax">0.00</span></p>
+            <h3>Total: £<span id="total">0.00</span></h3>
+        </div>
+
+        <!-- Generate PDF Button -->
+        <button class="generate-pdf" onclick="generatePDF()">Download Invoice PDF</button>
+    </div>
+
+    <!-- jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Hardcoded username and password
+        const hardcodedUsername = 'admin'; // Add your hardcoded username
+        const hardcodedPassword = 'aliraza'; // Existing hardcoded password
+    
+        // Check if the credentials are already stored in localStorage
+        if (localStorage.getItem('username') == hardcodedUsername && localStorage.getItem('password') == hardcodedPassword) {
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('invoicePage').style.display = 'block';
+        } else {
+            document.getElementById('login').style.display = 'block';
+        }
+    
+
+       // Function to handle login
+    function login() {
+        const enteredUsername = document.getElementById('username').value;
+        const enteredPassword = document.getElementById('password').value;
+
+        // Check if the entered username and password match the hardcoded credentials
+        if (enteredUsername === hardcodedUsername && enteredPassword === hardcodedPassword) {
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('invoicePage').style.display = 'block';
+            localStorage.setItem('username', enteredUsername);
+            localStorage.setItem('password', enteredPassword);
+        } else {
+            alert('Incorrect username or password. Please try again.');
+        }
+    }
+
+    // Add an event listener to the password input field to detect Enter key press
+    document.getElementById('password').addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent form submission
+            login();
+        }
+    });
+
+        // Function to add a new item row
+        function addItem() {
+            const itemsBody = document.getElementById('itemsBody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" placeholder="Item Description" class="item-desc"></td>
+                <td><input type="number" placeholder="0.00" class="item-rate"></td>
+                <td><input type="number" placeholder="1" class="item-qty"></td>
+                <td class="item-total">0.00</td>
+                <td class="item-actions">
+                    <button class="delete-item" onclick="deleteItem(this)">Delete</button>
+                </td>
+            `;
+            itemsBody.appendChild(newRow);
+            // Reattach the event listeners for the new row inputs
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', updateTotals);
+            });
+        }
+
+        // Function to delete an item
+        function deleteItem(button) {
+            const row = button.closest('tr');
+            row.remove();
+            updateTotals();
+        }
+
+        // Function to update totals dynamically
+        function updateTotals() {
+            let subtotal = 0;
+            const rows = document.querySelectorAll('#itemsBody tr');
+
+            rows.forEach(row => {
+                const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+                const qty = parseInt(row.querySelector('.item-qty').value) || 0;
+                const total = rate * qty;
+                row.querySelector('.item-total').innerText = total.toFixed(2);
+                subtotal += total;
+            });
+
+            const tax = subtotal * 0.20;
+            const total = subtotal + tax;
+
+            document.getElementById('subtotal').innerText = subtotal.toFixed(2);
+            document.getElementById('tax').innerText = tax.toFixed(2);
+            document.getElementById('total').innerText = total.toFixed(2);
+        }
+
+        // Attach event listeners to initial inputs
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', updateTotals);
+        });
+
+        // Function to generate the PDF with a professional design
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Static company header (Left side)
+            doc.setFontSize(18);
+            doc.setTextColor(40);
+            doc.text("Rasool Distribution", 10, 20);
+            
+            doc.setFontSize(12);
+            doc.text("Business Number VAT# 433 1520 37", 10, 30);
+            doc.text("21B Grange Road", 10, 36);
+            doc.text("Houston Industrial Estate", 10, 42);
+            doc.text("Livingston", 10, 48);
+            doc.text("07425771363", 10, 54);
+            doc.text("sales@rosuldistribution.com", 10, 60);
+
+            // Light line before Bill To section
+            doc.setDrawColor(200, 200, 200);
+            doc.line(10, 65, 200, 65); // Light line
+
+            // Bill To (Client details)
+            doc.setFontSize(12);
+            doc.text(`Bill To: ${document.getElementById('client').value}`, 10, 75);
+            doc.text(`Address: ${document.getElementById('address').value}`, 10, 81);
+
+            // Invoice details (Right side)
+            doc.setFontSize(12);
+            doc.text(`Invoice: ${document.getElementById('invoiceNumber').value}`, 150, 20);
+            doc.text(`Date: SEP 6, 2024`, 150, 30);
+            doc.text(`Due: On Receipt`, 150, 40);
+            doc.text(`Balance Due: £00.00`, 150, 50);
+
+            // Table headers with dotted underline
+            let y = 90;
+            doc.setFontSize(12);
+            doc.setTextColor(100);
+            doc.setFont("helvetica", "bold");
+            doc.text("Description", 10, y);
+            doc.text("Rate (£)", 100, y);
+            doc.text("Quantity", 130, y);
+            doc.text("Total (£)", 160, y);
+            y += 10;
+            doc.setLineDash([1, 1], 0);  // Less spaced dotted line
+            doc.line(10, y - 5, 200, y - 5);
+
+            // Table rows with less spaced dotted lines
+            doc.setFont("helvetica", "normal");
+            document.querySelectorAll('#itemsBody tr').forEach(row => {
+                const desc = row.querySelector('.item-desc').value;
+                const rate = row.querySelector('.item-rate').value;
+                const qty = row.querySelector('.item-qty').value;
+                const total = row.querySelector('.item-total').innerText;
+                
+                doc.text(desc, 10, y);
+                doc.text(rate, 100, y);
+                doc.text(qty, 130, y);
+                doc.text(total, 160, y);
+                y += 10;
+                doc.setLineDash([1, 1], 0);  // Less spaced dotted line
+                doc.line(10, y - 5, 200, y - 5);  // Dotted line between items
+            });
+
+            // Draw simple lines before and after the summary
+            doc.setLineDash([0]); // Solid line
+            y += 5;
+            doc.line(10, y, 200, y); // Line before summary
+            y += 10;
+
+            // Summary
+            doc.setFont("helvetica", "bold");
+            doc.text(`Subtotal: £${document.getElementById('subtotal').innerText}`, 150, y);
+            y += 10;
+            doc.text(`Vat (20%): £${document.getElementById('tax').innerText}`, 150, y);
+            y += 10;
+            doc.setFontSize(14);
+            doc.setTextColor(0);
+            doc.text(`Total: £${document.getElementById('total').innerText}`, 150, y);
+
+            y += 10;
+            doc.line(10, y, 200, y);  // Line after summary
+
+            doc.save('invoice.pdf');
+        }
+    </script>
+</body>
+</html>
